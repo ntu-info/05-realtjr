@@ -34,7 +34,7 @@ def create_app():
     def show_img():
         return send_file("amygdala.gif", mimetype="image/gif")
 
-    @app.get("/terms/<term>", endpoint="dissociate_terms")
+    @app.get("/dissociate/terms/<term_a>/<term_b>", endpoint="dissociate_terms")
     def dissociate_terms(term_a, term_b):
         """Find studies mentioning term_a but not term_b."""
         eng = get_engine()
