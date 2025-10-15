@@ -34,9 +34,29 @@ def create_app():
     def show_img():
         return send_file("amygdala.gif", mimetype="image/gif")
 
-    @app.get("/terms/<term>/studies", endpoint="terms_studies")
-    def get_studies_by_term(term):
-        return term
+    @app.get("/terms/<term>", endpoint="dissociate_terms")
+    def dissociate_terms(term_a, term_b):
+        """Find studies mentioning term_a but not term_b."""
+        eng = get_engine()
+        with eng.begin() as conn:
+            term_a = term_a.replace("_", " ")
+            term_b = term_b.replace("_", " ")
+
+            query = text("""
+            SELECT DISTINCT study_id, title
+            FROM ns.metadata
+            WHERE to_tsvector('english', title || ' ' || abstract)
+                  @@ plainto_tsquery(:term_a)
+              AND study_id NOT IN (
+                  SELECT study_id FROM ns.metadata
+                  WHERE to_tsvector('english', title || ' ' || abstract)
+                        @@ plainto_tsquery(:term_b)
+              )
+            LIMIT 10;
+            """)
+            rows = conn.execute(query, {"term_a": term_a, "term_b": term_b}).mappings().all()
+
+        return jsonify([dict(r) for r in rows])
 
     @app.get("/locations/<coords>/studies", endpoint="locations_studies")
     def get_studies_by_coordinates(coords):
