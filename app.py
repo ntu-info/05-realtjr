@@ -57,10 +57,31 @@ def create_app():
 
         return jsonify([dict(r) for r in rows])
 
-    @app.get("/locations/<coords>/studies", endpoint="locations_studies")
-    def get_studies_by_coordinates(coords):
-        x, y, z = map(int, coords.split("_"))
-        return jsonify([x, y, z])
+    @app.get("/dissociate/locations/<coords_a>/<coords_b>", endpoint="dissociate_locations")
+    def dissociate_locations(coords_a, coords_b):
+        """Find studies mentioning coordinate A but not B."""
+        eng = get_engine()
+        with eng.begin() as conn:
+            # parse coordinates (e.g., "0_-52_26")
+            x1, y1, z1 = map(float, coords_a.split("_"))
+            x2, y2, z2 = map(float, coords_b.split("_"))
+
+            # 查離指定座標最近的 study（使用 ST_Distance）
+            query = text("""
+                SELECT DISTINCT m.study_id, m.title
+                FROM ns.metadata AS m
+                JOIN ns.coordinates AS c ON m.study_id = c.study_id
+                WHERE ST_DWithin(c.geom, ST_MakePoint(:x1, :y1, :z1)::geometry, 3)
+                  AND m.study_id NOT IN (
+                      SELECT study_id FROM ns.coordinates
+                      WHERE ST_DWithin(geom, ST_MakePoint(:x2, :y2, :z2)::geometry, 3)
+                  )
+                LIMIT 10;
+            """)
+
+            rows = conn.execute(query, {"x1": x1, "y1": y1, "z1": z1, "x2": x2, "y2": y2, "z2": z2}).mappings().all()
+
+        return jsonify([dict(r) for r in rows])
 
     @app.get("/test_db", endpoint="test_db")
     
