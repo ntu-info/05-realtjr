@@ -42,7 +42,12 @@ GET /dissociate/terms/<term_a>/<term_b>
 
 
 click-> <https://zero5-realtjr.onrender.com/dissociate/terms/language/memory>
+
 click-> <https://zero5-realtjr.onrender.com/dissociate/terms/posterior_cingulate/ventromedial_prefrontal>
+
+**查詢畫面展示**
+![圖片說明文字](result/task1.png)
+
 
 ---
 
@@ -60,6 +65,7 @@ GET /dissociate/locations/<x1_y1_z1>/<x2_y2_z2>
 **Default Mode Network test case**
 
 click-> <https://zero5-realtjr.onrender.com/dissociate/locations/0_-52_26/-2_50_-6>
+
 click-> <https://zero5-realtjr.onrender.com/dissociate/locations/-2_50_-6/0_-52_26>
 
 > Tip: You may design a single endpoint that returns **both directions** in one response (A–B **and** B–A) if that better suits your client.
@@ -76,6 +82,7 @@ GET /dissociate/locations_dual/0_-52_26/-2_50_-6
 **Examples**
 
 click-> <https://zero5-realtjr.onrender.com/dissociate/terms_dual/language/memory>
+
 click-> <https://zero5-realtjr.onrender.com/dissociate/locations_dual/0_-52_26/-2_50_-6>
 
 ---
