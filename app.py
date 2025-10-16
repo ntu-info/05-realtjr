@@ -71,10 +71,10 @@ def create_app():
                 SELECT DISTINCT m.study_id, m.title
                 FROM ns.metadata AS m
                 JOIN ns.coordinates AS c ON m.study_id = c.study_id
-                WHERE ST_DWithin(c.geom, ST_MakePoint(:x1, :y1, :z1)::geometry, 3)
+                WHERE ST_DWithin(c.geom, ST_SetSRID(ST_MakePoint(:x1, :y1, :z1), 4326)::geometry, 3)
                   AND m.study_id NOT IN (
                       SELECT study_id FROM ns.coordinates
-                      WHERE ST_DWithin(geom, ST_MakePoint(:x2, :y2, :z2)::geometry, 3)
+                      WHERE ST_DWithin(c.geom, ST_SetSRID(ST_MakePoint(:x2, :y2, :z2), 4326)::geometry, 3)
                   )
                 LIMIT 10;
             """)
