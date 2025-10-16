@@ -1,9 +1,10 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/SO1PVZ3b)
 # Neurosynth Backend
 
-A lightweight Flask backend that exposes **functional dissociation** endpoints on top of a Neurosynth-backed PostgreSQL database.
-
-The service provides two APIs that return studies mentioning one concept/coordinate **but not** the other (A \ B). You can also query the opposite direction (B \ A).
+這是一個以 **Flask** 為基礎、連接 **Neurosynth PostgreSQL 資料庫** 的後端系統。  
+此服務提供「功能解離 (Functional Dissociation)」相關的 API，  
+能夠找出同時出現於一個概念或座標，但未出現於另一個的研究。  
+此外，也支援雙向查詢功能（A–B 與 B–A 同時回傳）。
 
 ---
 
@@ -34,13 +35,14 @@ The service provides two APIs that return studies mentioning one concept/coordin
 GET /dissociate/terms/<term_a>/<term_b>
 ```
 
-Returns studies that mention **`term_a`** but **not** `term_b`.
+回傳出現在 **term_a** 中、但**未出現在** **term_b** 中的研究。
 
 **Examples**
 
 ```
-/dissociate/terms/posterior_cingulate/ventromedial_prefrontal
-/dissociate/terms/ventromedial_prefrontal/posterior_cingulate
+
+👉 [https://zero5-realtjr.onrender.com/dissociate/terms/language/memory](https://zero5-realtjr.onrender.com/dissociate/terms/language/memory)
+
 ```
 
 ---
@@ -51,14 +53,36 @@ Returns studies that mention **`term_a`** but **not** `term_b`.
 GET /dissociate/locations/<x1_y1_z1>/<x2_y2_z2>
 ```
 
-Coordinates are passed as `x_y_z` (underscores, not commas).  
-Returns studies that mention **`[x1, y1, z1]`** but **not** `[x2, y2, z2]`.
+
+座標以底線 (`_`) 分隔，表示 `[x, y, z]`。  
+此端點回傳出現在第一組座標、但未出現在第二組座標的研究。
+
 
 **Default Mode Network test case**
 
 ```
-/dissociate/locations/0_-52_26/-2_50_-6
-/dissociate/locations/-2_50_-6/0_-52_26
+
+👉 [https://zero5-realtjr.onrender.com/dissociate/locations/0_-52_26/-2_50_-6](https://zero5-realtjr.onrender.com/dissociate/locations/0_-52_26/-2_50_-6)
+
+```
+
+**延伸功能：雙向查詢 (Bonus)**
+
+除了上述兩個單向查詢外，  
+我另外實作了「**雙向查詢端點**」，可同時回傳 A–B 與 B–A 的結果。
+
+```
+/dissociate/terms_dual/language/memory
+/dissociate/locations_dual/0_-52_26/-2_50_-6
+```
+**Examples**
+
+```
+👉 [https://zero5-realtjr.onrender.com/dissociate/terms_dual/language/memory](https://zero5-realtjr.onrender.com/dissociate/terms_dual/language/memory)  
+👉 [https://zero5-realtjr.onrender.com/dissociate/locations_dual/0_-52_26/-2_50_-6](https://zero5-realtjr.onrender.com/dissociate/locations_dual/0_-52_26/-2_50_-6)
+
+```
+
 ```
 
 > Tip: You may design a single endpoint that returns **both directions** in one response (A–B **and** B–A) if that better suits your client.
