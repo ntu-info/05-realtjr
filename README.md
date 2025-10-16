@@ -41,7 +41,7 @@ GET /dissociate/terms/<term_a>/<term_b>
 
 ```
 
-👉 [https://zero5-realtjr.onrender.com/dissociate/terms/language/memory](https://zero5-realtjr.onrender.com/dissociate/terms/language/memory)
+👉 <https://zero5-realtjr.onrender.com/dissociate/terms/language/memory>
 
 ```
 
