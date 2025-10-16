@@ -43,17 +43,16 @@ def create_app():
             term_b = term_b.replace("_", " ")
 
             query = text("""
-            SELECT DISTINCT study_id, title
-            FROM ns.metadata
-            WHERE to_tsvector('english', title || ' ' || abstract)
-                  @@ plainto_tsquery(:term_a)
-              AND study_id NOT IN (
-                  SELECT study_id FROM ns.metadata
-                  WHERE to_tsvector('english', title || ' ' || abstract)
-                        @@ plainto_tsquery(:term_b)
-              )
-            LIMIT 10;
+                SELECT DISTINCT study_id, title
+                FROM ns.metadata
+                WHERE fts @@ plainto_tsquery(:term_a)
+                  AND study_id NOT IN (
+                      SELECT study_id FROM ns.metadata
+                      WHERE fts @@ plainto_tsquery(:term_b)
+                  )
+                LIMIT 10;
             """)
+
             rows = conn.execute(query, {"term_a": term_a, "term_b": term_b}).mappings().all()
 
         return jsonify([dict(r) for r in rows])
