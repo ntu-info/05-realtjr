@@ -39,11 +39,9 @@ GET /dissociate/terms/<term_a>/<term_b>
 
 **Examples**
 
-```
 
 👉 <https://zero5-realtjr.onrender.com/dissociate/terms/language/memory>
 
-```
 
 ---
 
