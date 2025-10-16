@@ -82,6 +82,108 @@ def create_app():
             rows = conn.execute(query, {"x1": x1, "y1": y1, "z1": z1, "x2": x2, "y2": y2, "z2": z2}).mappings().all()
 
         return jsonify([dict(r) for r in rows])
+    
+    @app.get("/dissociate/terms_dual/<term_a>/<term_b>", endpoint="dissociate_terms_dual")
+    def dissociate_terms_dual(term_a, term_b):
+        """Return both A_not_B and B_not_A term dissociations."""
+        eng = get_engine()
+        with eng.begin() as conn:
+            # --- A not B ---
+            query_a = text("""
+                SELECT DISTINCT study_id, title
+                FROM ns.metadata
+                WHERE fts @@ plainto_tsquery(:term_a)
+                AND study_id NOT IN (
+                    SELECT study_id FROM ns.metadata
+                    WHERE fts @@ plainto_tsquery(:term_b)
+                )
+                LIMIT 10;
+            """)
+            rows_a = conn.execute(query_a, {"term_a": term_a, "term_b": term_b}).mappings().all()
+
+            # --- B not A ---
+            query_b = text("""
+                SELECT DISTINCT study_id, title
+                FROM ns.metadata
+                WHERE fts @@ plainto_tsquery(:term_b)
+                AND study_id NOT IN (
+                    SELECT study_id FROM ns.metadata
+                    WHERE fts @@ plainto_tsquery(:term_a)
+                )
+                LIMIT 10;
+            """)
+            rows_b = conn.execute(query_b, {"term_a": term_a, "term_b": term_b}).mappings().all()
+
+        return jsonify({
+            "A_not_B": [dict(r) for r in rows_a],
+            "B_not_A": [dict(r) for r in rows_b]
+        })
+    
+    @app.get("/dissociate/locations_dual/<coords_a>/<coords_b>", endpoint="dissociate_locations_dual")
+    def dissociate_locations_dual(coords_a, coords_b):
+        """Return both A_not_B and B_not_A spatial dissociations."""
+        eng = get_engine()
+        with eng.begin() as conn:
+            x1, y1, z1 = map(float, coords_a.split("_"))
+            x2, y2, z2 = map(float, coords_b.split("_"))
+
+            # --- A not B ---
+            query_a = text("""
+                SELECT DISTINCT m.study_id, m.title
+                FROM ns.metadata AS m
+                JOIN ns.coordinates AS c ON m.study_id = c.study_id
+                WHERE ST_DWithin(
+                        c.geom,
+                        ST_SetSRID(ST_MakePoint(:x1, :y1, :z1), 4326)::geometry,
+                        3
+                    )
+                AND m.study_id NOT IN (
+                    SELECT study_id FROM ns.coordinates
+                    WHERE ST_DWithin(
+                        geom,
+                        ST_SetSRID(ST_MakePoint(:x2, :y2, :z2), 4326)::geometry,
+                        3
+                    )
+                )
+                LIMIT 10;
+            """)
+
+            # --- B not A ---
+            query_b = text("""
+                SELECT DISTINCT m.study_id, m.title
+                FROM ns.metadata AS m
+                JOIN ns.coordinates AS c ON m.study_id = c.study_id
+                WHERE ST_DWithin(
+                        c.geom,
+                        ST_SetSRID(ST_MakePoint(:x2, :y2, :z2), 4326)::geometry,
+                        3
+                    )
+                AND m.study_id NOT IN (
+                    SELECT study_id FROM ns.coordinates
+                    WHERE ST_DWithin(
+                        geom,
+                        ST_SetSRID(ST_MakePoint(:x1, :y1, :z1), 4326)::geometry,
+                        3
+                    )
+                )
+                LIMIT 10;
+            """)
+
+            rows_a = conn.execute(query_a, {
+                "x1": x1, "y1": y1, "z1": z1,
+                "x2": x2, "y2": y2, "z2": z2
+            }).mappings().all()
+
+            rows_b = conn.execute(query_b, {
+                "x1": x1, "y1": y1, "z1": z1,
+                "x2": x2, "y2": y2, "z2": z2
+            }).mappings().all()
+
+        return jsonify({
+            "A_not_B": [dict(r) for r in rows_a],
+            "B_not_A": [dict(r) for r in rows_b]
+        })
+
 
     @app.get("/test_db", endpoint="test_db")
     
