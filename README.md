@@ -13,6 +13,7 @@
 - [Endpoints](#endpoints)
   - [Dissociate by terms](#dissociate-by-terms)
   - [Dissociate by MNI coordinates](#dissociate-by-mni-coordinates)
+  - [延伸功能：雙向查詢](#延伸功能：雙向查詢)
 - [Quick Start](#quick-start)
   - [1) Provision PostgreSQL](#1-provision-postgresql)
   - [2) Verify the connection](#2-verify-the-connection)
@@ -40,8 +41,8 @@ GET /dissociate/terms/<term_a>/<term_b>
 **Examples**
 
 
-👉 <https://zero5-realtjr.onrender.com/dissociate/terms/language/memory>
-
+click-> <https://zero5-realtjr.onrender.com/dissociate/terms/language/memory>
+click-> <https://zero5-realtjr.onrender.com/dissociate/terms/posterior_cingulate/ventromedial_prefrontal>
 
 ---
 
@@ -58,32 +59,24 @@ GET /dissociate/locations/<x1_y1_z1>/<x2_y2_z2>
 
 **Default Mode Network test case**
 
-```
+click-> <https://zero5-realtjr.onrender.com/dissociate/locations/0_-52_26/-2_50_-6>
+click-> <https://zero5-realtjr.onrender.com/dissociate/locations/-2_50_-6/0_-52_26>
 
-👉 [https://zero5-realtjr.onrender.com/dissociate/locations/0_-52_26/-2_50_-6](https://zero5-realtjr.onrender.com/dissociate/locations/0_-52_26/-2_50_-6)
+> Tip: You may design a single endpoint that returns **both directions** in one response (A–B **and** B–A) if that better suits your client.
 
-```
-
-**延伸功能：雙向查詢 (Bonus)**
+### 延伸功能：雙向查詢
 
 除了上述兩個單向查詢外，  
 我另外實作了「**雙向查詢端點**」，可同時回傳 A–B 與 B–A 的結果。
 
 ```
-/dissociate/terms_dual/language/memory
-/dissociate/locations_dual/0_-52_26/-2_50_-6
+GET /dissociate/terms_dual/language/memory
+GET /dissociate/locations_dual/0_-52_26/-2_50_-6
 ```
 **Examples**
 
-```
-👉 [https://zero5-realtjr.onrender.com/dissociate/terms_dual/language/memory](https://zero5-realtjr.onrender.com/dissociate/terms_dual/language/memory)  
-👉 [https://zero5-realtjr.onrender.com/dissociate/locations_dual/0_-52_26/-2_50_-6](https://zero5-realtjr.onrender.com/dissociate/locations_dual/0_-52_26/-2_50_-6)
-
-```
-
-```
-
-> Tip: You may design a single endpoint that returns **both directions** in one response (A–B **and** B–A) if that better suits your client.
+click-> <https://zero5-realtjr.onrender.com/dissociate/terms_dual/language/memory>
+click-> <https://zero5-realtjr.onrender.com/dissociate/locations_dual/0_-52_26/-2_50_-6>
 
 ---
 
